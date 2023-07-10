@@ -62,6 +62,7 @@ void create_mandelbrot(const frame_t *frame, image_t *image) {
   double real_step = (frame->real_max - frame->real_min) / image->width;
   double imag_step = (frame->imag_max - frame->imag_min) / image->height;
 
+  #pragma omp parallel for
   for (int y = 0; y < image->height; y++) {
     double imag = frame->imag_min + y * imag_step;
 
@@ -93,15 +94,24 @@ void write_image(const image_t *image, const char *filename) {
 }
 
 int main(int argc, char *argv[]) {
-  // Elephant Valley
+  if(argc < 6){
+        printf("usage: ./mandelbrot real_min real_max imag_min imag_max image_width\n");
+        printf("examples with image_width = 11500:\n");
+        printf("    Full Picture:         ./mandelbrot -2.5 1.5 -2.0 2.0 11500\n");
+        printf("    Seahorse Valley:      ./mandelbrot -0.8 -0.7 0.05 0.15 11500\n");
+        printf("    Elephant Valley:      ./mandelbrot 0.175 0.375 -0.1 0.1 11500\n");
+        printf("    Triple Spiral Valley: ./mandelbrot -0.188 -0.012 0.554 0.754 11500\n");
+        exit(0);
+  }
+
   const frame_t frame = {
-      .real_max = 0.375,
-      .real_min = 0.175,
-      .imag_max = 0.1,
-      .imag_min = -0.1,
+      .real_min = atof(argv[1]),
+      .real_max = atof(argv[2]),
+      .imag_min = atof(argv[3]),
+      .imag_max = atof(argv[4]),
   };
 
-  const size_t width = 15360; // 16K image width
+  const size_t width = atoi(argv[5]); // 16K image width
   const size_t height = width * (frame.imag_max - frame.imag_min) /
                         (frame.real_max - frame.real_min);
 
