@@ -61,16 +61,22 @@ pixel_t iteration2pixel(size_t iterations) {
 void create_mandelbrot(const frame_t *frame, image_t *image) {
   double real_step = (frame->real_max - frame->real_min) / image->width;
   double imag_step = (frame->imag_max - frame->imag_min) / image->height;
-  for (size_t x = 0; x < image->width; x++) {
-    double real = frame->real_min + x * real_step;
-    for (size_t y = 0; y < image->height; y++) {
-      double imag = frame->imag_min + y * imag_step;
 
-      size_t iterations = iterate_point(real + imag * I);
-      image->pixels[x + y * image->width] = iteration2pixel(iterations);
-    }
-  }
-}
+  for (int y = 0; y < image->height; y++) {
+    double imag = frame->imag_min + y * imag_step;
+
+    if (fabs(imag) < imag_step / 2) {
+      imag = 0.0;
+    };
+
+    for (int x = 0; x < image->width; x++) {
+      double real = frame->real_min + x * real_step;
+
+      int iteration = iterate_point(real + imag * I);
+      image->pixels[x + y * image->width] = iteration2pixel(iteration);
+    };
+  };
+};
 
 void write_image(const image_t *image, const char *filename) {
   FILE *file = fopen(filename, "wb");
@@ -87,44 +93,17 @@ void write_image(const image_t *image, const char *filename) {
 }
 
 int main(int argc, char *argv[]) {
-  /*
-  * printf("    Full Picture:         ./mandelbrot_seq -2.5 1.5 -2.0 2.0 11500\n");
-  * printf("    Seahorse Valley:      ./mandelbrot_seq -0.8 -0.7 0.05 0.15 11500\n");
-  * printf("    Elephant Valley:      ./mandelbrot_seq 0.175 0.375 -0.1 0.1 11500\n");
-  * printf("    Triple Spiral Valley: ./mandelbrot_seq -0.188 -0.012 0.554 0.754 11500\n");
-  */
-  const frame_t frame_full_picture = {
-      .real_max = 1.5,
-      .real_min = -2.5,
-      .imag_max = 2.0,
-      .imag_min = -2.0,
-  };
-
-  const frame_t frame_seahorse_valley = {
-      .real_max = -0.7,
-      .real_min = -0.8,
-      .imag_max = 0.15,
-      .imag_min = 0.05,
-  };
-
-  const frame_t frame_elphant_valley = {
+  // Elephant Valley
+  const frame_t frame = {
       .real_max = 0.375,
       .real_min = 0.175,
       .imag_max = 0.1,
       .imag_min = -0.1,
   };
 
-  const frame_t triple_spiral_valley = {
-      .real_max = -0.012,
-      .real_min = -0.188,
-      .imag_max = 0.754,
-      .imag_min = 0.554,
-  };
-
-  const frame_t frame = triple_spiral_valley;
-
   const size_t width = 15360; // 16K image width
-  const size_t height = width*(frame.imag_max-frame.imag_min)/(frame.real_max-frame.real_min);
+  const size_t height = width * (frame.imag_max - frame.imag_min) /
+                        (frame.real_max - frame.real_min);
 
   image_t image = {
       .width = width,
