@@ -20,10 +20,10 @@ typedef struct {
 } image_t;
 
 typedef struct {
-  double real_max;
   double real_min;
-  double imag_max;
+  double real_max;
   double imag_min;
+  double imag_max;
 } frame_t;
 
 const size_t PALLET_SIZE = 17;
