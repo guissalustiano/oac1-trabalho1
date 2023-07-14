@@ -4,16 +4,21 @@ from dataclasses import dataclass
 import subprocess
 import sys
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
 from loguru import logger
 # Configure logger
 logger.remove()
 logger.add(sys.stderr, format="<level>{level: <5}</level> | <level>{message}</level>", level="DEBUG")
 
 mandelbrot_program = Path("./mandelbrot")
-result_folder = Path("results")
+exec_folder = Path("results")
+graph_folder = Path("graphs")
 
 def bootstrap():
-    result_folder.mkdir(exist_ok=True)
+    exec_folder.mkdir(exist_ok=True)
+    graph_folder.mkdir(exist_ok=True)
     if not mandelbrot_program.exists():
         logger.error(f"Program \"{mandelbrot_program.as_posix()}\" not found, please run the Makefile before execute this program")
         exit(1)
@@ -169,8 +174,8 @@ def run_measure_cached(
     params: ProgramInput,
     force_recompute: bool = False,
 ) -> PerfExecution:
-    result_file = result_folder / (str(params) + ".json")
-    result_image = result_folder / (str(params) + ".ppm")
+    result_file = exec_folder / (str(params) + ".json")
+    result_image = result_file.with_suffix(".ppm")
 
     if (not force_recompute and result_image.exists()):
         logger.info(f"Loading cached result from \"{result_file.as_posix()}\"")
@@ -200,7 +205,7 @@ def run_measure_cached(
     return PerfExecution(params, results, result_image)
 
 def run_all_measures():
-    input_sizes = [2**i for i in range(4, 15)]
+    input_sizes = [2**i for i in range(4, 14)] # TODO: use 4..<15
     threads = [2**i for i in range(0, 9)]
 
     for t in threads:
@@ -254,10 +259,123 @@ def run_all_measures():
                 )
             )
 
+def load_results():
+    # Read all results from files
+    execs = []
+    for exec_file in exec_folder.glob("*.json"):
+        with exec_file.open() as f:
+            execs.append(PerfExecution.from_dict_and_file(json.load(f), exec_file.with_suffix(".ppm")))
+
+    # Convert to DataFrame
+    rows = []
+    for exec in execs:
+        for result in exec.results:
+            rows.append({
+                'input.real_min': exec.input.real_min,
+                'input.real_max': exec.input.real_max,
+                'input.imag_min': exec.input.imag_min,
+                'input.imag_max': exec.input.imag_max,
+                'input.image_width': exec.input.image_width,
+                'input.repeat': exec.input.repeat,
+                'input.threads': exec.input.threads,
+                'input.region_label': exec.input.region_label,
+                'result.counter_value': result.counter_value,
+                'result.event': result.event,
+                'result.metric_unit': result.metric_unit,
+                'result.metric_value': result.metric_value,
+                'result.variance': result.variance,
+                'result.unit': result.unit,
+            })
+    return pd.DataFrame(rows)
+
+def plot_durationxthreads(df: pd.DataFrame):
+    for region_label, group_region in df.groupby('input.region_label'):
+        for image_width, group_width in group_region.groupby('input.image_width'):
+            df_duration_time = group_width[group_width['result.event'] == "duration_time:u"]
+
+            logger.info(f"Plotting duration_time x threads (region: {region_label}, image_width: {image_width})")
+            fig, ax = plt.subplots()
+            ax.bar(
+                x = [str(x) for x in df_duration_time['input.threads']],
+                height = df_duration_time['result.counter_value'],
+            )
+
+            ax.set_title(f"Duration time x Threads (region: {region_label}, image_width: {image_width})")
+            ax.set_xlabel("Threads")
+            ax.set_ylabel("Duration time (s)")
+
+            fig.savefig(graph_folder / f"durationXthreads_{region_label}_{image_width}.png")
+            plt.close(fig)
+
+def plot_durationxsize(df: pd.DataFrame):
+    for region_label, group_region in df.groupby('input.region_label'):
+        for threads, group_threads in group_region.groupby('input.threads'):
+            df_duration_time = group_threads[group_threads['result.event'] == "duration_time:u"]
+
+            logger.info(f"Plotting duration_time x image_width (region: {region_label}, threads: {threads})")
+            fig, ax = plt.subplots()
+            ax.bar(
+                x = [str(x) for x in df_duration_time['input.image_width']],
+                height = df_duration_time['result.counter_value'],
+            )
+
+            ax.set_title(f"Duration time x Image width (region: {region_label}, threads: {threads})")
+            ax.set_xlabel("Image width")
+            ax.set_ylabel("Duration time (s)")
+
+            fig.savefig(graph_folder / f"durationXsize_{region_label}_{threads}.png")
+            plt.close(fig)
+
+def plot_ipcxthreads(df: pd.DataFrame):
+    for region_label, group_region in df.groupby('input.region_label'):
+        for image_width, group_width in group_region.groupby('input.image_width'):
+            df_instructions = group_width[group_width['result.event'] == "instructions:u"]
+
+            logger.info(f"Plotting IPC x threads (region: {region_label}, image_width: {image_width})")
+            fig, ax = plt.subplots()
+            ax.bar(
+                x = [str(x) for x in df_instructions['input.threads']],
+                height = df_instructions['result.metric_value'],
+            )
+
+            ax.set_title(f"IPC x Threads (region: {region_label}, image_width: {image_width})")
+            ax.set_xlabel("IPC")
+            ax.set_ylabel("Duration time (s)")
+
+            fig.savefig(graph_folder / f"ipcXthreads_{region_label}_{image_width}.png")
+            plt.close(fig)
+
+def plot_ipcxxsize(df: pd.DataFrame):
+    for region_label, group_region in df.groupby('input.region_label'):
+        for threads, group_threads in group_region.groupby('input.threads'):
+            df_instructions = group_threads[group_threads['result.event'] == "instructions:u"]
+            logger.info(f"Plotting IPC x image_width (region: {region_label}, threads: {threads})")
+            fig, ax = plt.subplots()
+            ax.bar(
+                x = [str(x) for x in df_instructions['input.image_width']],
+                height = df_instructions['result.metric_value'],
+            )
+            ax.set_title(f"IPC x Image width (region: {region_label}, threads: {threads})")
+            ax.set_xlabel("Image width")
+            ax.set_ylabel("IPC")
+            fig.savefig(graph_folder / f"ipcXsize_{region_label}_{threads}.png")
+            plt.close(fig)
+
+# Parametros: region, input_size, threads -> IPC, duration_time
+# TODO: plot variance
+def plot_results():
+    df = load_results()
+
+    plot_durationxthreads(df)
+    plot_durationxsize(df)
+    plot_ipcxthreads(df)
+    plot_ipcxxsize(df)
+
+
 def main():
     bootstrap()
     run_all_measures()
-    #TODO: plot results
+    plot_results()
 
 # Run main only if this file is called directly
 if __name__ == "__main__":
