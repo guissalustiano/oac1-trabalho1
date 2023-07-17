@@ -205,7 +205,7 @@ def run_measure_cached(
     return PerfExecution(params, results, result_image)
 
 def run_all_measures():
-    input_sizes = [2**i for i in range(4, 15)]
+    input_sizes = [2**i for i in [4, 8, 11, 13]]
     threads = [2**i for i in range(0, 9)]
 
     for t in threads:
