@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const size_t MAX_ITERATIONS = 255;
+const size_t MAX_ITERATIONS = 200;
 
 typedef struct {
   uint8_t red;
