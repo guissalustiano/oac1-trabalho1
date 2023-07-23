@@ -339,8 +339,8 @@ def plot_ipcxthreads(df: pd.DataFrame):
             )
 
             ax.set_title(f"IPC x Threads (region: {region_label}, image_width: {image_width})")
-            ax.set_xlabel("IPC")
-            ax.set_ylabel("Duration time (s)")
+            ax.set_xlabel("Threads")
+            ax.set_ylabel("IPC (instructions/cycle)")
 
             fig.savefig(graph_folder / f"ipcXthreads_{region_label}_{image_width}.png")
             plt.close(fig)
@@ -357,7 +357,7 @@ def plot_ipcxxsize(df: pd.DataFrame):
             )
             ax.set_title(f"IPC x Image width (region: {region_label}, threads: {threads})")
             ax.set_xlabel("Image width")
-            ax.set_ylabel("IPC")
+            ax.set_ylabel("IPC (instructions/cycle)")
             fig.savefig(graph_folder / f"ipcXsize_{region_label}_{threads}.png")
             plt.close(fig)
 
