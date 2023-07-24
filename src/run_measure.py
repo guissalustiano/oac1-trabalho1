@@ -3,6 +3,7 @@ from pathlib import Path
 from dataclasses import dataclass
 import subprocess
 import sys
+import os
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -23,16 +24,16 @@ def bootstrap():
         logger.error(f"Program \"{mandelbrot_program.as_posix()}\" not found, please run the Makefile before execute this program")
         exit(1)
 
+    if os.geteuid() != 0:
+        logger.error("This program need root privileges, please run with sudo")
+        exit(1)
+    else:
+        logger.warning("Don't run random programns with sudo, this is dangerous")
+
 DEFAULT_MEASURE_EVENTS = [
-    "cpu-cycles",
-    "ref-cycles",
-    "instructions",
-    "cpu-clock",
+    # "cpu-cycles",
+    # "instructions",
     "duration_time",
-    "user_time",
-    "system_time",
-    "mem-loads",
-    "mem-stores",
     "power/energy-cores/",
     "power/energy-ram/",
 ]
@@ -92,7 +93,7 @@ class ProgramInput:
 
 @dataclass
 class PerfResult:
-    counter_value: int | None
+    counter_value: float | None
     event: str
     metric_unit: str
     metric_value: float
@@ -112,13 +113,14 @@ class PerfResult:
 
     @staticmethod
     def parse(s: bytes | str):
-        d = json.loads(s)
+        fix_perf = re.sub(b'(?<=\\d),(?=\\d)', '.', s) # perf exports json with comma in pt-BR systems
+        d = json.loads(fix_perf)
 
         if d['counter-value'] == "<not counted>":
             logger.warning(f'value not counted: {d}')
 
         return PerfResult(
-            counter_value=int(float(d['counter-value'])) if d['counter-value'] != "<not counted>" else None,
+            counter_value=float(d['counter-value']) if d['counter-value'] != "<not counted>" else None,
             event=d['event'],
             metric_unit=d['metric-unit'],
             metric_value=float(d['metric-value']),
@@ -149,6 +151,7 @@ def run_measure(
 ) -> PerfExecution:
     logger.info(f"Running measure on {str(params)}")
     command = [
+            "sudo", # need high privileges to measure power
             "perf", "stat",  # Performance counter statistics
             "-r", params.repeat, # Multiple samples (generate confidence interval)
             "-e", ",".join(params.events),
@@ -206,7 +209,7 @@ def run_measure_cached(
 
 def run_all_measures():
     input_sizes = [2**i for i in range(4, 14)]
-    threads = [2**i for i in range(0, 9)]
+    threads = [2**i for i in range(8, 9)]
 
     for t in threads:
         for s in input_sizes:
