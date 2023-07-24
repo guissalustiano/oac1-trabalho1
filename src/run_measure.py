@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import subprocess
 import sys
 import os
+import re
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -35,7 +36,7 @@ DEFAULT_MEASURE_EVENTS = [
     # "instructions",
     "duration_time",
     "power/energy-cores/",
-    "power/energy-ram/",
+    "power/energy-pkg/",
 ]
 
 @dataclass
@@ -205,11 +206,14 @@ def run_measure_cached(
     logger.info(f"Saving image to \"{result_image.as_posix()}\"")
     image.rename(result_image)
 
+    # remove image to reduce disk usage
+    result_image.unlink()
+
     return PerfExecution(params, results, result_image)
 
 def run_all_measures():
     input_sizes = [2**i for i in range(4, 14)]
-    threads = [2**i for i in range(8, 9)]
+    threads = [2**i for i in range(0, 9)]
 
     for t in threads:
         for s in input_sizes:
