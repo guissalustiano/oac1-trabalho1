@@ -2,7 +2,7 @@
 all: mandelbrot
 
 mandelbrot: mandelbrot.c
-	gcc -o mandelbrot -std=c11 -lm -O2 -fopenmp mandelbrot.c
+	gcc -o mandelbrot -std=c11 -O2 -fopenmp mandelbrot.c -lm
 
 .PHONY: clean
 clean:

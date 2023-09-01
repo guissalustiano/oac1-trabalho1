@@ -3,6 +3,7 @@ from pathlib import Path
 from dataclasses import dataclass
 import subprocess
 import re
+import sys
 
 import pandas as pd
 import matplotlib.pyplot as plt
