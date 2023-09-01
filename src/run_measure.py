@@ -2,8 +2,6 @@ import json
 from pathlib import Path
 from dataclasses import dataclass
 import subprocess
-import sys
-import os
 import re
 
 import pandas as pd
@@ -25,18 +23,10 @@ def bootstrap():
         logger.error(f"Program \"{mandelbrot_program.as_posix()}\" not found, please run the Makefile before execute this program")
         exit(1)
 
-    if os.geteuid() != 0:
-        logger.error("This program need root privileges, please run with sudo")
-        exit(1)
-    else:
-        logger.warning("Don't run random programns with sudo, this is dangerous")
-
 DEFAULT_MEASURE_EVENTS = [
-    # "cpu-cycles",
-    # "instructions",
+    "cpu-cycles",
+    "instructions",
     "duration_time",
-    "power/energy-cores/",
-    "power/energy-pkg/",
 ]
 
 @dataclass
@@ -152,7 +142,7 @@ def run_measure(
 ) -> PerfExecution:
     logger.info(f"Running measure on {str(params)}")
     command = [
-            "sudo", # need high privileges to measure power
+            # "sudo", # need high privileges to measure power
             "perf", "stat",  # Performance counter statistics
             "-r", params.repeat, # Multiple samples (generate confidence interval)
             "-e", ",".join(params.events),
