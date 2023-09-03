@@ -1,3 +1,7 @@
 **/*.ppm
 **/*.out
 **/mandelbrot
+
+src/graphs/
+src/results/
+
