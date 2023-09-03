@@ -286,6 +286,11 @@ def load_results():
             })
     return pd.DataFrame(rows)
 
+def plot_bar_with_error(ax, x, y, yerr):
+        ax.bar(x = x, height = y, color="blue")
+        ax.errorbar(x = x, y = y, yerr = yerr, color="darkblue", fmt="o")
+
+
 def plot_durationxthreads(df: pd.DataFrame):
     for region_label, group_region in df.groupby('input.region_label'):
         for image_width, group_width in group_region.groupby('input.image_width'):
@@ -293,10 +298,12 @@ def plot_durationxthreads(df: pd.DataFrame):
 
             logger.info(f"Plotting duration_time x threads (region: {region_label}, image_width: {image_width})")
             fig, ax = plt.subplots()
-            ax.bar(
-                x = [str(x) for x in df_duration_time['input.threads']],
-                height = df_duration_time['result.counter_value'],
-            )
+
+            x = [str(x) for x in df_duration_time['input.threads']]
+            y = df_duration_time['result.counter_value']
+            yerr = [x*varr/100 for x,varr in zip(y, df_duration_time['result.variance'])] # Converte porcentagem para valor absoluto
+
+            plot_bar_with_error(ax, x, y, yerr)
 
             ax.set_title(f"Duration time x Threads (region: {region_label}, image_width: {image_width})")
             ax.set_xlabel("Threads")
@@ -312,10 +319,12 @@ def plot_durationxsize(df: pd.DataFrame):
 
             logger.info(f"Plotting duration_time x image_width (region: {region_label}, threads: {threads})")
             fig, ax = plt.subplots()
-            ax.bar(
-                x = [str(x) for x in df_duration_time['input.image_width']],
-                height = df_duration_time['result.counter_value'],
-            )
+
+            x = [str(x) for x in df_duration_time['input.image_width']]
+            y = df_duration_time['result.counter_value']
+            yerr = [x*varr/100 for x,varr in zip(y, df_duration_time['result.variance'])] # Converte porcentagem para valor absoluto
+
+            plot_bar_with_error(ax, x, y, yerr)
 
             ax.set_title(f"Duration time x Image width (region: {region_label}, threads: {threads})")
             ax.set_xlabel("Image width")
@@ -331,10 +340,12 @@ def plot_ipcxthreads(df: pd.DataFrame):
 
             logger.info(f"Plotting IPC x threads (region: {region_label}, image_width: {image_width})")
             fig, ax = plt.subplots()
-            ax.bar(
-                x = [str(x) for x in df_instructions['input.threads']],
-                height = df_instructions['result.metric_value'],
-            )
+
+            x = [str(x) for x in df_instructions['input.threads']]
+            y = df_instructions['result.metric_value']
+            yerr = [x*varr/100 for x,varr in zip(y, df_instructions['result.variance'])] # Converte porcentagem para valor absoluto
+
+            plot_bar_with_error(ax, x, y, yerr)
 
             ax.set_title(f"IPC x Threads (region: {region_label}, image_width: {image_width})")
             ax.set_xlabel("Threads")
@@ -349,10 +360,13 @@ def plot_ipcxxsize(df: pd.DataFrame):
             df_instructions = group_threads[group_threads['result.event'] == "instructions:u"].sort_values(by=['input.image_width'])
             logger.info(f"Plotting IPC x image_width (region: {region_label}, threads: {threads})")
             fig, ax = plt.subplots()
-            ax.bar(
-                x = [str(x) for x in df_instructions['input.image_width']],
-                height = df_instructions['result.metric_value'],
-            )
+
+            x = [str(x) for x in df_instructions['input.image_width']]
+            y = df_instructions['result.metric_value']
+            yerr = [x*varr/100 for x,varr in zip(y, df_instructions['result.variance'])] # Converte porcentagem para valor absoluto
+
+            plot_bar_with_error(ax, x, y, yerr)
+
             ax.set_title(f"IPC x Image width (region: {region_label}, threads: {threads})")
             ax.set_xlabel("Image width")
             ax.set_ylabel("IPC (instructions/cycle)")
