@@ -172,7 +172,7 @@ def run_measure_cached(
     result_file = exec_folder / (str(params) + ".json")
     result_image = result_file.with_suffix(".ppm")
 
-    if (not force_recompute and result_image.exists()):
+    if (not force_recompute and result_file.exists()):
         logger.info(f"Loading cached result from \"{result_file.as_posix()}\"")
         with result_file.open() as f:
             exec = PerfExecution.from_dict_and_file(json.load(f), result_image)
@@ -289,7 +289,7 @@ def load_results():
 def plot_durationxthreads(df: pd.DataFrame):
     for region_label, group_region in df.groupby('input.region_label'):
         for image_width, group_width in group_region.groupby('input.image_width'):
-            df_duration_time = group_width[group_width['result.event'] == "duration_time:u"]
+            df_duration_time = group_width[group_width['result.event'] == "duration_time:u"].sort_values(by=['input.threads'])
 
             logger.info(f"Plotting duration_time x threads (region: {region_label}, image_width: {image_width})")
             fig, ax = plt.subplots()
@@ -308,7 +308,7 @@ def plot_durationxthreads(df: pd.DataFrame):
 def plot_durationxsize(df: pd.DataFrame):
     for region_label, group_region in df.groupby('input.region_label'):
         for threads, group_threads in group_region.groupby('input.threads'):
-            df_duration_time = group_threads[group_threads['result.event'] == "duration_time:u"]
+            df_duration_time = group_threads[group_threads['result.event'] == "duration_time:u"].sort_values(by=['input.image_width'])
 
             logger.info(f"Plotting duration_time x image_width (region: {region_label}, threads: {threads})")
             fig, ax = plt.subplots()
@@ -327,7 +327,7 @@ def plot_durationxsize(df: pd.DataFrame):
 def plot_ipcxthreads(df: pd.DataFrame):
     for region_label, group_region in df.groupby('input.region_label'):
         for image_width, group_width in group_region.groupby('input.image_width'):
-            df_instructions = group_width[group_width['result.event'] == "instructions:u"]
+            df_instructions = group_width[group_width['result.event'] == "instructions:u"].sort_values(by=['input.threads'])
 
             logger.info(f"Plotting IPC x threads (region: {region_label}, image_width: {image_width})")
             fig, ax = plt.subplots()
@@ -346,7 +346,7 @@ def plot_ipcxthreads(df: pd.DataFrame):
 def plot_ipcxxsize(df: pd.DataFrame):
     for region_label, group_region in df.groupby('input.region_label'):
         for threads, group_threads in group_region.groupby('input.threads'):
-            df_instructions = group_threads[group_threads['result.event'] == "instructions:u"]
+            df_instructions = group_threads[group_threads['result.event'] == "instructions:u"].sort_values(by=['input.image_width'])
             logger.info(f"Plotting IPC x image_width (region: {region_label}, threads: {threads})")
             fig, ax = plt.subplots()
             ax.bar(
