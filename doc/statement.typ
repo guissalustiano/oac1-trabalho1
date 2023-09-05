@@ -9,9 +9,8 @@
 )
 #show link: underline
 
-= Introduction
-Esse trabalho busca introduzir alguns dos problemas e desafios relacionados ao conteúdo visto em aula.
-Analisaremos o desempenho de um programa variando o número de threads e tamanho da entrada, observando como isso afeta o tempo de execução e o IPC, baseado no EP1 de MAC5742 @ep1-MAC5742.
+= Introdução
+Nessa atividades realizaremos um brenchmark, analizando como a duração e IPC do problema mudam a partir do tamanho da entrade e numero de threads.
 
 = Requisitos
 Essa atividade depende de funcionalidades únicas do Linux, recomendamos rodar linux nativamente. Caso não seja possível, é recomendado utilizar o #link("https://learn.microsoft.com/en-us/windows/wsl/install")[WSL2 no Windows], ou via #link("https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#1-overview")[Máquina Virtual] (com no mínimo 2 cores), em caso de duvidas contate o monitor.
@@ -58,7 +57,7 @@ Benoit fez isso criando e visualizando imagens de geometria fractal.
 
 Um desses fractais  foi nomeado _Conjunto de  Mandelbrot_ pelo matemático Adrien Douady.
 O Conjunto de Mandelbrot  pode ser informalmente definido como o conjunto dos números complexos $c$ para os quais a função $f_c (z) = z^2 + x$ não diverge quando  é iterada  começando em $z  = 0$. Isto  é, a  sequência $f_c (0), f_c (f_c (0)), f_c (f_c (f_c (0))), dots$   é	sempre	limitada.
-Na	@fig:regions abaixo podemos ver algumas regiões do  Conjunto de  Mandelbrot.
+Nas Figuras abaixo podemos ver algumas regiões do  Conjunto de  Mandelbrot.
 
 /*
 #figure(
@@ -68,8 +67,7 @@ Na	@fig:regions abaixo podemos ver algumas regiões do  Conjunto de  Mandelbrot.
   ],
 ) <header>
 */
-#figure(
-grid(
+#grid(
   columns: 2,
   gutter: 2mm,
   figure(
@@ -93,14 +91,10 @@ grid(
   figure(
 	image("full.png"),
 	caption: [
-  	_Seahorse Valley_
+  	_Full Picture_
 	],
   )
-),
-  caption: [
-	Regiões do Mandelbroat
-  ],
-) <fig:regions>
+)
 
 == Executando o código
 Baixe o #link("https://github.com/guissalustiano/oac1-trabalho1")[código do EP] e entre na pasta com a linha de comando, então basta executar os seguintes comandos
@@ -116,7 +110,7 @@ O programa recebe 5 parâmetros, os primeiro quatro se referem a região que ser
 Ao final da execução, o programa gera o arquivo `mandelbrot.ppm` com o seu lindo conjunto de mandelbrot.
 
 == Entrega
-Para a entrega dessa secção vamos realizar a medição performance utilizando o comando `perf`. Comece executando o seguinte comando:
+Para a entrega dessa seção vamos realizar a medição performance utilizando o comando `perf`. Comece executando o seguinte comando:
 
 ```bash
 $ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time,power/energy-cores/ ./mandelbrot -2.5 1.5 -2.0 2.0 11500 2048
@@ -142,7 +136,7 @@ Caso observem variabilidade  muito grande nas  medições, resultando num  inter
 
 A  @tab:exp lista os experimentos  que devem ser feitos:  os valores
 para o  número de  _threads_ e  de execuções, e  os tamanhos  de entrada.
-Cada  experimento  deverá  ser  repetido nas  quatro  regiões  especificadas  na @fig:regions.  As coordenadas  para  cada região  podem ser  obtidas
+Cada  experimento  deverá  ser  repetido nas  quatro  regiões  anteriormente apresentadas.  As coordenadas  para  cada região  podem ser  obtidas
 executando no diretório `src`:
 
 ```bash
@@ -171,7 +165,7 @@ O número de iterações para o critério de convergência foi escolhido\ #link(
     	- _Seahorse_
     	- _Full_
   	],
-  	[*Núm. de Threads*], $2^0 dots 2^8$,
+  	[*Núm. de Threads*], $2^0 dots 2^6$,
   	[*Tamanho da Entrada*], $2^4 dots 2^13$,
   	[*Núm de Execuções*], $10$
 	),
@@ -186,7 +180,7 @@ Para executar entre no diretório `src/` e execute o comando abaixo:
 ```bash
 python run_measure.py
 ```
-*Atenção* o script demora várias horas para ser executado.
+*Atenção* no teste de referencia executando em um processador i5 11° geração, o brenchmark rodou em 5 horas.
 Você pode interromper o script, se necessário, e ele voltará a executar do experimento que parou. Evite rodar coisas pesadas junto do experimento, como jogos, e em caso de notebook prefira rodar sempre enquanto estiver na tomada.
 
 Após o término da execução você deverá submeter a pasta `results/` com os arquivos `json` criados.
@@ -200,8 +194,8 @@ Vocês deverão analisar os resultados obtidos e tentar responder a algumas perg
   - Do tamanho da entrada?
   - Das regiões do Conjunto de Mandelbrot?
   - Do número de _threads_?
-- Qual é o número de _threads_ ideal teorico? Oque podemos observar nesse ponto?
-- Porque um IPC maior não necessariamente corresponde a uma menor duração
+- Qual é o número de _threads_ ideal teorico? O que podemos observar nesse ponto?
+- Porque um IPC maior não necessariamente corresponde a uma menor duração?
 
 Vocês conseguem pensar em mais perguntas interessantes?
 

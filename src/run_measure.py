@@ -204,7 +204,7 @@ def run_measure_cached(
 
 def run_all_measures():
     input_sizes = [2**i for i in range(4, 14)]
-    threads = [2**i for i in range(0, 9)]
+    threads = [2**i for i in range(0, 7)]
 
     for t in threads:
         for s in input_sizes:
