@@ -10,7 +10,7 @@
 #show link: underline
 
 = Introdução
-Nessa atividades realizaremos um brenchmark, analizando como a duração e IPC do problema mudam a partir do tamanho da entrade e numero de threads.
+Nessa atividades realizaremos um benchmark, analizando como a duração e IPC do problema mudam a partir do tamanho da entrade e numero de threads, baseado no EP1 de MAC5742 @ep1-MAC5742
 
 = Requisitos
 Essa atividade depende de funcionalidades únicas do Linux, recomendamos rodar linux nativamente. Caso não seja possível, é recomendado utilizar o #link("https://learn.microsoft.com/en-us/windows/wsl/install")[WSL2 no Windows], ou via #link("https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#1-overview")[Máquina Virtual] (com no mínimo 2 cores), em caso de duvidas contate o monitor.
@@ -124,7 +124,7 @@ $ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time,power/e
 $ cat perf.txt
 ```
 
-= Brenchmark
+= Benchmark
 Para cada uma  das três versões do programa, vocês  deverão realizar medições do tempo de execução para diferentes tamanhos de entrada.
 Nas versões paralelizadas vocês deverão  também medir, para cada  tamanho de entrada, o  tempo de execução para diferentes números de _threads_.
 
@@ -180,7 +180,7 @@ Para executar entre no diretório `src/` e execute o comando abaixo:
 ```bash
 python run_measure.py
 ```
-*Atenção* no teste de referencia executando em um processador i5 11° geração, o brenchmark rodou em 5 horas.
+*Atenção* no teste de referencia executando em um processador i5 11° geração, o benchmark rodou em 5 horas.
 Você pode interromper o script, se necessário, e ele voltará a executar do experimento que parou. Evite rodar coisas pesadas junto do experimento, como jogos, e em caso de notebook prefira rodar sempre enquanto estiver na tomada.
 
 Após o término da execução você deverá submeter a pasta `results/` com os arquivos `json` criados.
@@ -188,7 +188,7 @@ Após o término da execução você deverá submeter a pasta `results/` com os 
 = Análise dos resultados
 O script `run_measure.py` também gera gráficos na pasta `graphs/` (utilizando pandas e mathplotlib). Você pode alterá-los ou incrementá-los. se quiser.
 
-== Entrega
+== Questões direcionadas
 Vocês deverão analisar os resultados obtidos e tentar responder a algumas perguntas:
 - Como e por que as três versões do programa se comportam com a variação:
   - Do tamanho da entrada?
@@ -199,7 +199,7 @@ Vocês deverão analisar os resultados obtidos e tentar responder a algumas perg
 
 Vocês conseguem pensar em mais perguntas interessantes?
 
-Crie um documento `relatorio.pdf` com suas respostas e considerações, ele deverá ser submetido ao final com os demais arquivos.
+Questões relacionadas a esse assunto irão ser avaliadas na próxima avaliação.
 
 
 = Entrega final
@@ -209,7 +209,6 @@ atv1.zip
 ├── cpu_info.json
 ├── perf.txt
 ├── results/*.json
-└── relatorio.pdf
 ```
 
 
