@@ -19,7 +19,7 @@ Vamos precisar das seguintes dependências:
 ```bash
 $ Ubuntu
 $ sudo apt install build-essential # p/ gcc & make
-$ sudo apt install linux-tools-generic # p/ perf
+$ sudo apt install linux-tools-generic linux-tools-`uname -r` # p/ perf
 $ sudo apt install hwloc # p/ lstopo (Opcional)
 ```
 
@@ -113,14 +113,14 @@ Ao final da execução, o programa gera o arquivo `mandelbrot.ppm` com o seu lin
 Para a entrega dessa seção vamos realizar a medição performance utilizando o comando `perf`. Comece executando o seguinte comando:
 
 ```bash
-$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time,power/energy-cores/ ./mandelbrot -2.5 1.5 -2.0 2.0 11500 2048
+$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time ./mandelbrot -2.5 1.5 -2.0 2.0 11500 2048
 ```
 
 Estamos usando o `perf-stat` que junta estatísticas sobre a execução do programa. O parâmetro `-r` significa o número de repetições da execução, utilizado para calcular o intervalo de confiança. No parâmetro `-e` passamos a lista de eventos que queremos contar, podemos observar a lista inteira com o comando `perf list`. Por fim temos efetivamente o programa a ser executado.
 
 Agora vamos rodar novamente o programa para uma entrada maior e salvar seu resultado para submissão.
 ```bash
-$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time,power/energy-cores/ ./mandelbrot -2.5 1.5 -2.0 2.0 11500 2> perf.txt
+$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time ./mandelbrot -2.5 1.5 -2.0 2.0 11500 2> perf.txt
 $ cat perf.txt
 ```
 
@@ -140,10 +140,10 @@ Cada  experimento  deverá  ser  repetido nas  quatro  regiões  anteriormente a
 executando no diretório `src`:
 
 ```bash
-$ make mandelbrot_seq
-gcc -o mandelbrot_seq -std=c11 mandelbrot_seq.c
-$ ./mandelbrot_seq
-usage: ./mandelbrot_seq c_x_min c_x_max c_y_min c_y_max image_size
+$ make
+gcc -o mandelbrot -std=c11 mandelbrot_seq.c
+$ ./mandelbrot
+usage: ./mandelbrot c_x_min c_x_max c_y_min c_y_max image_size
 examples with image_size = 11500:
   	Full Picture:     	./mandelbrot_seq -2.5 1.5 -2.0 2.0 11500
   	Seahorse Valley:  	./mandelbrot_seq -0.8 -0.7 0.05 0.15 11500
