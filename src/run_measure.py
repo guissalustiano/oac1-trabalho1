@@ -5,9 +5,6 @@ import subprocess
 import re
 import sys
 
-import pandas as pd
-import matplotlib.pyplot as plt
-
 from loguru import logger
 # Configure logger
 logger.remove()
@@ -150,11 +147,17 @@ def run_measure(
             "-j", # Output JSON, easier to parse
             mandelbrot_program.absolute().as_posix(), params.real_min, params.real_max, params.imag_min, params.imag_max, params.image_width # Program executed
             ]
-    process = subprocess.run([str(c) for c in command],
-        env={"OMP_NUM_THREADS": str(params.threads)}, # Number of threads used by OpenMP
-        capture_output=True,
-        check=True, # raise Error if execution fail
-    )
+    commands = [str(c) for c in command]
+    try:
+        process = subprocess.run([str(c) for c in command],
+            env={"OMP_NUM_THREADS": str(params.threads)}, # Number of threads used by OpenMP
+            capture_output=True,
+            check=True, # raise Error if execution fail
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error running perf: {' '.join(commands)}")
+        logger.error(f"stderr: {e.stderr.decode('utf-8')}")
+        exit(1)
     results = [PerfResult.parse(r) 
                for r in process.stderr.split(b'\n') 
                if r != b'']
@@ -291,7 +294,7 @@ def plot_bar_with_error(ax, x, y, yerr):
         ax.errorbar(x = x, y = y, yerr = yerr, color="darkblue", fmt="o")
 
 
-def plot_durationxthreads(df: pd.DataFrame):
+def plot_durationxthreads(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for image_width, group_width in group_region.groupby('input.image_width'):
             df_duration_time = group_width[group_width['result.event'] == "duration_time:u"].sort_values(by=['input.threads'])
@@ -312,7 +315,7 @@ def plot_durationxthreads(df: pd.DataFrame):
             fig.savefig(graph_folder / f"durationXthreads_{region_label}_{image_width}.png")
             plt.close(fig)
 
-def plot_durationxsize(df: pd.DataFrame):
+def plot_durationxsize(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for threads, group_threads in group_region.groupby('input.threads'):
             df_duration_time = group_threads[group_threads['result.event'] == "duration_time:u"].sort_values(by=['input.image_width'])
@@ -333,7 +336,7 @@ def plot_durationxsize(df: pd.DataFrame):
             fig.savefig(graph_folder / f"durationXsize_{region_label}_{threads}.png")
             plt.close(fig)
 
-def plot_ipcxthreads(df: pd.DataFrame):
+def plot_ipcxthreads(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for image_width, group_width in group_region.groupby('input.image_width'):
             df_instructions = group_width[group_width['result.event'] == "instructions:u"].sort_values(by=['input.threads'])
@@ -354,7 +357,7 @@ def plot_ipcxthreads(df: pd.DataFrame):
             fig.savefig(graph_folder / f"ipcXthreads_{region_label}_{image_width}.png")
             plt.close(fig)
 
-def plot_ipcxxsize(df: pd.DataFrame):
+def plot_ipcxxsize(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for threads, group_threads in group_region.groupby('input.threads'):
             df_instructions = group_threads[group_threads['result.event'] == "instructions:u"].sort_values(by=['input.image_width'])
@@ -376,6 +379,9 @@ def plot_ipcxxsize(df: pd.DataFrame):
 # Parametros: region, input_size, threads -> IPC, duration_time
 # TODO: plot variance
 def plot_results():
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
     df = load_results()
 
     plot_durationxthreads(df)
