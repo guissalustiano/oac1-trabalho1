@@ -1,3 +1,5 @@
+from __future__ import annotations # Suport python 3.7 e 3.8
+
 import json
 from pathlib import Path
 from dataclasses import dataclass
