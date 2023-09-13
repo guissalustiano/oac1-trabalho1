@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import subprocess
 import re
 import sys
+import shutil
 
 from loguru import logger
 # Configure logger
@@ -13,6 +14,9 @@ logger.add(sys.stderr, format="<level>{level: <5}</level> | <level>{message}</le
 mandelbrot_program = Path("./mandelbrot")
 exec_folder = Path("results")
 graph_folder = Path("graphs")
+
+# Desculpa eu uso nixos e as coisas são meio confusas por aqui, oq me leva a precisar disso
+perf_executable = Path(shutil.which("perf"))
 
 def bootstrap():
     exec_folder.mkdir(exist_ok=True)
@@ -144,7 +148,7 @@ def run_measure(
     logger.info(f"Running measure on {str(params)}")
     command = [
             # "sudo", # need high privileges to measure power
-            "perf", "stat",  # Performance counter statistics
+            perf_executable.absolute().as_posix(), "stat",  # Performance counter statistics
             "-r", params.repeat, # Multiple samples (generate confidence interval)
             "-e", ",".join(params.events),
             "-j", # Output JSON, easier to parse
