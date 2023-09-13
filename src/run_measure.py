@@ -105,6 +105,9 @@ class PerfResult:
 
     @staticmethod
     def parse(s: bytes | str):
+        if isinstance(s, str):
+            s = s.encode('utf-8')
+
         fix_perf = re.sub(b'(?<=\\d),(?=\\d)', '.', s) # perf exports json with comma in pt-BR systems
         d = json.loads(fix_perf)
 
