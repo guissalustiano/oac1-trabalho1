@@ -36,12 +36,13 @@ $ sudo apt install linux-tools-generic # p/ perf
 $ sudo apt install hwloc # p/ lstopo (Opcional)
 
 $ # Talvez a versão nesse caminho varie um pouco dependendo da versão do kernel
-$ ln -sf /usr/lib/linux-tools/5.15.0-83-generic/perf /usr/bin/perf
+$ sudo ln -sf /usr/lib/linux-tools/5.15.0-83-generic/perf /usr/bin/perf
 
 $# Permite os eventos que vamos precisar do kernel na CPU
 $ sudo sysctl kernel.perf_event_paranoid=2
 ```
 
+== Docker
 Ou você também pode usar o #link("https://docs.docker.com/engine/install/")[docker] com o script `run_by_docker.sh`.
 
 = Conhece quem tu(a CPU) és
