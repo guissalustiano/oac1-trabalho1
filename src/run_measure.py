@@ -111,23 +111,19 @@ class PerfResult:
         )
 
     @staticmethod
-    def parse(s: bytes | str):
-        if isinstance(s, str):
-            s = s.encode('utf-8')
+    def parse(line: bytes):
+        [counter_value, unit, event, variance, event_runtime, pcnt_running, metric_value, metric_unit] = line.split(b';')
 
-        fix_perf = re.sub(b'(?<=\\d),(?=\\d)', '.', s) # perf exports json with comma in pt-BR systems
-        d = json.loads(fix_perf)
-
-        if d['counter-value'] == "<not counted>":
-            logger.warning(f'value not counted: {d}')
+        if counter_value == "<not counted>":
+            logger.warning(f'value not counted: {line}')
 
         return PerfResult(
-            counter_value=float(d['counter-value']) if d['counter-value'] != "<not counted>" else None,
-            event=d['event'],
-            metric_unit=d['metric-unit'],
-            metric_value=float(d['metric-value']),
-            variance=float(d['variance']),
-            unit=d['unit'],
+            counter_value=float(counter_value.strip()) if counter_value != "<not counted>" else None,
+            event=event.decode('utf-8'),
+            metric_unit=metric_unit.decode('utf-8'),
+            metric_value=float(metric_value.strip() or 0),
+            variance=float(variance.strip().replace(b'%', b'')),
+            unit=unit.decode('utf-8'),
         )
 
     def __str__(self) -> str:
@@ -157,11 +153,12 @@ def run_measure(
             perf_executable.absolute().as_posix(), "stat",  # Performance counter statistics
             "-r", params.repeat, # Multiple samples (generate confidence interval)
             "-e", ",".join(params.events),
-            "-j", # Output JSON, easier to parse
+            "-x;", # Output JSON, easier to parse
             mandelbrot_program.absolute().as_posix(), params.real_min, params.real_max, params.imag_min, params.imag_max, params.image_width # Program executed
             ]
     commands = [str(c) for c in command]
     try:
+        logger.debug(f"running {' '.join(commands)}")
         process = subprocess.run([str(c) for c in command],
             env={"OMP_NUM_THREADS": str(params.threads)}, # Number of threads used by OpenMP
             capture_output=True,
