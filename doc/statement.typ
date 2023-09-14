@@ -19,7 +19,7 @@ Vamos precisar instalar as seguintes dependências:
 
 == Ubuntu
 ```bash
-$ sudo apt install python3 python-pip3
+$ sudo apt install python3 python3-pip
 $ sudo apt install build-essential # p/ gcc & make
 $ sudo apt install linux-tools-generic linux-tools-`uname -r` # p/ perf
 $ sudo apt install hwloc # p/ lstopo (Opcional)
@@ -30,7 +30,7 @@ $ sudo sysctl kernel.perf_event_paranoid=2
 
 == WSL2
 ```bash
-$ sudo apt install python3 python-pip3
+$ sudo apt install python3 python3-pip
 $ sudo apt install build-essential # p/ gcc & make
 $ sudo apt install linux-tools-generic # p/ perf
 $ sudo apt install hwloc # p/ lstopo (Opcional)
