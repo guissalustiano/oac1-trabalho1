@@ -13,14 +13,33 @@
 Nessa atividades realizaremos um benchmark, analizando como a duração e IPC do problema mudam a partir do tamanho da entrade e numero de threads, baseado no EP1 de MAC5742 @ep1-MAC5742
 
 = Requisitos
-Essa atividade depende de funcionalidades únicas do Linux, recomendamos rodar linux nativamente. Caso não seja possível, é recomendado utilizar o #link("https://learn.microsoft.com/en-us/windows/wsl/install")[WSL2 no Windows], ou via #link("https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#1-overview")[Máquina Virtual] (com no mínimo 2 cores), em caso de duvidas contate o monitor.
+Essa atividade depende de funcionalidades únicas do Linux, recomendamos rodar linux nativamente. Caso não seja possível, é recomendado utilizar o #link("https://learn.microsoft.com/en-us/windows/wsl/install")[WSL2 no Windows], em caso de duvidas contate o monitor.
 
-Vamos precisar das seguintes dependências:
+Vamos precisar instalar as seguintes dependências:
+
+== Ubuntu
 ```bash
-$ Ubuntu
+$ sudo apt install python3 python-pip3
 $ sudo apt install build-essential # p/ gcc & make
 $ sudo apt install linux-tools-generic linux-tools-`uname -r` # p/ perf
 $ sudo apt install hwloc # p/ lstopo (Opcional)
+
+$# Permite os eventos que vamos precisar do kernel na CPU
+$ sudo sysctl kernel.perf_event_paranoid=2
+```
+
+== WSL2
+```bash
+$ sudo apt install python3 python-pip3
+$ sudo apt install build-essential # p/ gcc & make
+$ sudo apt install linux-tools-generic # p/ perf
+$ sudo apt install hwloc # p/ lstopo (Opcional)
+
+$ # Talvez a versão nesse caminho varie um pouco dependendo da versão do kernel
+$ ln -sf /usr/lib/linux-tools/5.15.0-83-generic/perf /usr/bin/perf
+
+$# Permite os eventos que vamos precisar do kernel na CPU
+$ sudo sysctl kernel.perf_event_paranoid=2
 ```
 
 Ou você também pode usar o #link("https://docs.docker.com/engine/install/")[docker] com o script `run_by_docker.sh`.
@@ -113,14 +132,14 @@ Ao final da execução, o programa gera o arquivo `mandelbrot.ppm` com o seu lin
 Para a entrega dessa seção vamos realizar a medição performance utilizando o comando `perf`. Comece executando o seguinte comando:
 
 ```bash
-$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time ./mandelbrot -2.5 1.5 -2.0 2.0 11500 2048
+$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time ./mandelbrot -2.5 1.5 -2.0 2.0 4096
 ```
 
 Estamos usando o `perf-stat` que junta estatísticas sobre a execução do programa. O parâmetro `-r` significa o número de repetições da execução, utilizado para calcular o intervalo de confiança. No parâmetro `-e` passamos a lista de eventos que queremos contar, podemos observar a lista inteira com o comando `perf list`. Por fim temos efetivamente o programa a ser executado.
 
 Agora vamos rodar novamente o programa para uma entrada maior e salvar seu resultado para submissão.
 ```bash
-$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time ./mandelbrot -2.5 1.5 -2.0 2.0 11500 2> perf.txt
+$ OMP_NUM_THREADS=8 perf stat -r 10 -e cycles,instructions,duration_time ./mandelbrot -2.5 1.5 -2.0 2.0 4096 2> perf.txt
 $ cat perf.txt
 ```
 
@@ -178,7 +197,10 @@ De forma a facilitar a execução dos parâmetros fornecemos o script `run_measu
 
 Para executar entre no diretório `src/` e execute o comando abaixo:
 ```bash
-python run_measure.py
+# Instala as dependencias
+$ pip install -r requirements.txt
+
+$ python run_measure.py
 ```
 *Atenção* no teste de referencia executando em um processador i5 11° geração, o benchmark rodou em 5 horas.
 Você pode interromper o script, se necessário, e ele voltará a executar do experimento que parou. Evite rodar coisas pesadas junto do experimento, como jogos, e em caso de notebook prefira rodar sempre enquanto estiver na tomada.
