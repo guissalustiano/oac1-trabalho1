@@ -310,7 +310,10 @@ def plot_bar_with_error(ax, x, y, yerr):
 def plot_durationxthreads(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for image_width, group_width in group_region.groupby('input.image_width'):
-            df_duration_time = group_width[group_width['result.event'] == "duration_time:u"].sort_values(by=['input.threads'])
+            df_duration_time = group_width[
+                    (group_width['result.event'] == "duration_time:u") # Intel
+                    | (group_width['result.event'] == "duration_time") # AMD
+                    ].sort_values(by=['input.threads'])
 
             logger.info(f"Plotting duration_time x threads (region: {region_label}, image_width: {image_width})")
             fig, ax = plt.subplots()
@@ -331,7 +334,10 @@ def plot_durationxthreads(df):
 def plot_durationxsize(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for threads, group_threads in group_region.groupby('input.threads'):
-            df_duration_time = group_threads[group_threads['result.event'] == "duration_time:u"].sort_values(by=['input.image_width'])
+            df_duration_time = group_threads[
+                    (group_threads['result.event'] == "duration_time:u") # Intel
+                    | (group_threads['result.event'] == "duration_time") # AMD
+                    ].sort_values(by=['input.image_width'])
 
             logger.info(f"Plotting duration_time x image_width (region: {region_label}, threads: {threads})")
             fig, ax = plt.subplots()
@@ -352,7 +358,10 @@ def plot_durationxsize(df):
 def plot_ipcxthreads(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for image_width, group_width in group_region.groupby('input.image_width'):
-            df_instructions = group_width[group_width['result.event'] == "instructions:u"].sort_values(by=['input.threads'])
+            df_instructions = group_width[
+                    (group_width['result.event'] == "instructions:u") # Intel
+                    | (group_width['result.event'] == "instructions") # AMD
+                    ].sort_values(by=['input.threads'])
 
             logger.info(f"Plotting IPC x threads (region: {region_label}, image_width: {image_width})")
             fig, ax = plt.subplots()
@@ -373,7 +382,10 @@ def plot_ipcxthreads(df):
 def plot_ipcxxsize(df):
     for region_label, group_region in df.groupby('input.region_label'):
         for threads, group_threads in group_region.groupby('input.threads'):
-            df_instructions = group_threads[group_threads['result.event'] == "instructions:u"].sort_values(by=['input.image_width'])
+            df_instructions = group_threads[
+                    (group_threads['result.event'] == "instructions:u") # Intel
+                    | (group_threads['result.event'] == "instructions") # AMD
+                    ].sort_values(by=['input.image_width'])
             logger.info(f"Plotting IPC x image_width (region: {region_label}, threads: {threads})")
             fig, ax = plt.subplots()
 
