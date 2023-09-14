@@ -8,6 +8,10 @@ import re
 import sys
 import shutil
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
 from loguru import logger
 # Configure logger
 logger.remove()
@@ -387,9 +391,6 @@ def plot_ipcxxsize(df):
 
 # Parametros: region, input_size, threads -> IPC, duration_time
 def plot_results():
-    import pandas as pd
-    import matplotlib.pyplot as plt
-
     df = load_results()
 
     plot_durationxthreads(df)
