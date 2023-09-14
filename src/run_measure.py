@@ -386,7 +386,6 @@ def plot_ipcxxsize(df):
             plt.close(fig)
 
 # Parametros: region, input_size, threads -> IPC, duration_time
-# TODO: plot variance
 def plot_results():
     import pandas as pd
     import matplotlib.pyplot as plt
