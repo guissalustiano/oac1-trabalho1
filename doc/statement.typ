@@ -24,12 +24,24 @@ $ sudo apt install build-essential # p/ gcc & make
 $ sudo apt install linux-tools-generic linux-tools-`uname -r` # p/ perf
 $ sudo apt install hwloc # p/ lstopo (Opcional)
 
-$# Permite os eventos que vamos precisar do kernel na CPU
+$ # Permite os eventos que vamos precisar do kernel na CPU
 $ sudo sysctl kernel.perf_event_paranoid=2
 ```
 
 == WSL2
+Primeiro precisamos checar a versão do kernel
 ```bash
+$ # No terminal do widows (powershell ou cmd)
+$ wsl --version
+
+$ # A "versão do kernel" deve ser maior que 5.15, se não é necessário atualizar
+$ wsl --update 
+$ wsl --shutdown
+```
+
+E então podemos instalar as dependências
+```bash
+$ # No terminal do ubuntu
 $ sudo apt install python3 python3-pip
 $ sudo apt install build-essential # p/ gcc & make
 $ sudo apt install linux-tools-generic # p/ perf
@@ -38,7 +50,7 @@ $ sudo apt install hwloc # p/ lstopo (Opcional)
 $ # Talvez a versão nesse caminho varie um pouco dependendo da versão do kernel
 $ sudo ln -sf /usr/lib/linux-tools/5.15.0-83-generic/perf /usr/bin/perf
 
-$# Permite os eventos que vamos precisar do kernel na CPU
+$ # Permite os eventos que vamos precisar do kernel na CPU
 $ sudo sysctl kernel.perf_event_paranoid=2
 ```
 
